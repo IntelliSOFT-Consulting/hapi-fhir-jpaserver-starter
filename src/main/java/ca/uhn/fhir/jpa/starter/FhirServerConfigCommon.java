@@ -189,8 +189,7 @@ public class FhirServerConfigCommon {
       retVal.setStartTlsRequired(email.getStartTlsRequired());
       retVal.setQuitWait(email.getQuitWait());
 
-      if(subscriptionDeliveryHandlerFactory.isPresent())
-       subscriptionDeliveryHandlerFactory.get().setEmailSender(retVal);
+      subscriptionDeliveryHandlerFactory.ifPresent(deliveryHandlerFactory -> deliveryHandlerFactory.setEmailSender(retVal));
 
       return retVal;
     }
