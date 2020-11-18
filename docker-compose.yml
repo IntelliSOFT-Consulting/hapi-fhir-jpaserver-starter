@@ -6,6 +6,9 @@ services:
     restart: on-failure
     ports:
       - "8080:8080"
+    environment:
+      OAUTH_URL: ${OAUTH_URL}
+      OAUTH_ENABLE: ${OAUTH_ENABLE}
 
   # PostgreSQL database for HAPI FHIR
   hapi-fhir-postgres:
