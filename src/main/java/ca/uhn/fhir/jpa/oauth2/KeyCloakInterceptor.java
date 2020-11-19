@@ -5,21 +5,19 @@ import ca.uhn.fhir.interceptor.api.Interceptor;
 import ca.uhn.fhir.interceptor.api.Pointcut;
 import ca.uhn.fhir.rest.server.exceptions.AuthenticationException;
 import ca.uhn.fhir.rest.server.interceptor.InterceptorAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@Slf4j
 @Interceptor
 public class KeyCloakInterceptor extends InterceptorAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(KeyCloakInterceptor.class);
-
-    // Const from environment variables
     private static final String OAUTH_ENABLE = System.getenv("OAUTH_ENABLE");
+
     private static final String OAUTH_URL = System.getenv("OAUTH_URL");
 
     private static final String BEARER = "BEARER ";
@@ -29,7 +27,7 @@ public class KeyCloakInterceptor extends InterceptorAdapter {
     public boolean incomingRequestPreProcessed(HttpServletRequest theRequest, HttpServletResponse theResponse) {
 
         String resourcePath = theRequest.getPathInfo();
-        logger.info("Accessing Resource: {}", resourcePath);
+        log.info("Accessing Resource: {}", resourcePath);
         // OAuth authentication is disabled if the environment variable is set to false or not set
         if (!Boolean.parseBoolean(OAUTH_ENABLE)) {
             return true;
@@ -37,7 +35,7 @@ public class KeyCloakInterceptor extends InterceptorAdapter {
 
         String authHeader = theRequest.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null) {
-            logger.error("OAuth2 Authentication failure.  No OAuth Token supplied in Authorization Header on Request.");
+            log.error("OAuth2 Authentication failure.  No OAuth Token supplied in Authorization Header on Request.");
             throw new AuthenticationException("Unauthorised access to protected resource");
         }
 
@@ -54,12 +52,12 @@ public class KeyCloakInterceptor extends InterceptorAdapter {
 
         if (response.getStatusCode()
             .value() != HttpStatus.OK.value()) {
-            logger.error("OAuth2 Authentication failure. "
+            log.error("OAuth2 Authentication failure. "
                 + "Invalid OAuth Token supplied in Authorization Header on Request.");
             throw new AuthenticationException("Unauthorised access to protected resource");
         }
 
-        logger.debug("Authenticated Access to {}", resourcePath);
+        log.debug("Authenticated Access to {}", resourcePath);
         return true;
     }
 }
